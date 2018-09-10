@@ -1,9 +1,8 @@
 
 #include <iostream>
 #include <phpcpp.h>
+#include "headers/teacrypt_class.h"
 
 Php::Value teaEncrypt(Php::Parameters &params) {
-	std::string data = params[0];
-	std::string key  = params[1];
-	return data + key;
+	return Teacrypt::encrypt(params[0], params[1], params[3]);
 }

@@ -112,7 +112,8 @@ MKDIR				=	mkdir -p
 #	all source files. The object files are all compiled versions of the source
 #	file, with the .cpp extension being replaced by .o.
 #
-SOURCES				=	$(wildcard src/*.cpp)
+#SOURCES				=	$(wildcard src/*.cpp)
+SOURCES				=	$(shell find src/ -name '*.cpp')
 OBJECTS				=	$(SOURCES:%.cpp=%.o)
 
 
