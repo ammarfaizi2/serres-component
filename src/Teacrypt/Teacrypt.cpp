@@ -1,4 +1,5 @@
 
+#include <assert.h>
 #include <phpcpp.h>
 #include <random>
 #include <string>
@@ -13,15 +14,16 @@ std::string Teacrypt::encrypt(std::string data, std::string key) {
 		salt = generateSalt(SALT_LENGTH),
 		newKey = "",
 		result = "";
-	
-	char tmpResult = 'a';
+
 
 	int 
+		segmentKey = 1,
+		segmentKey2 = 1,
 		saltLength = SALT_LENGTH,
 		dataLength = data.length(),
 		keyLength  = key.length(),
-		i = 0, j;
-	
+		i = 0, j, cost_i = 0, 
+		cost_j = 0, cost_k = 0;	
 	for (; i < saltLength; ++i)
 	{
 		for (j = 0; j < keyLength; ++j)
@@ -49,17 +51,20 @@ std::string Teacrypt::encrypt(std::string data, std::string key) {
 	}
 
 	keyLength = newKey.length();
-
+	
 	for (i = 0; i < dataLength; ++i)
 	{
+		cost_i += i;
 		for (j = 0; j < keyLength; ++j)
 		{
-			tmpResult = (char)(
-				(int)data[i] ^ (int)newKey[j] ^ i ^ j
+			cost_j += j;
+			segmentKey = (
+				(int)data[i] ^ (int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1))
 			);
+			segmentKey2 = ((segmentKey2 << segmentKey) % (j+1));
 		}
-
-		result += tmpResult;
+		cost_k += cost_i + cost_j + 1;
+		result += segmentKey ^ segmentKey2 ^ ((cost_i << cost_j) % (i+1)) ^ ((cost_k >> cost_i << cost_j) % (i+2));
 	}
 
 	return result + salt;
@@ -70,18 +75,19 @@ std::string Teacrypt::decrypt(std::string data, std::string key) {
 	int dataLength = data.length();
 
 	std::string 
-		salt = data.substr(dataLength - SALT_LENGTH , SALT_LENGTH),
+		salt = data.substr(dataLength - SALT_LENGTH, SALT_LENGTH),
 		newKey = "",
 		result = "";
 
 	data = data.substr(0, dataLength - SALT_LENGTH);
 
-	char tmpResult = 'a';
-
 	int 
+		segmentKey = 1,
+		segmentKey2 = 1,
 		saltLength = SALT_LENGTH,
 		keyLength  = key.length(),
-		i = 0, j;
+		i = 0, j, cost_i = 0, 
+		cost_j = 0, cost_k = 0;
 	
 	dataLength = data.length();
 
@@ -113,20 +119,25 @@ std::string Teacrypt::decrypt(std::string data, std::string key) {
 
 	keyLength = newKey.length();
 
+	
 	for (i = 0; i < dataLength; ++i)
 	{
+		cost_i += i;
 		for (j = 0; j < keyLength; ++j)
 		{
-			tmpResult = (char)(
-				(int)data[i] ^ (int)newKey[j] ^ i ^ j
+			cost_j += j;
+			segmentKey = (
+				(int)data[i] ^ (int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1))
 			);
+			segmentKey2 = ((segmentKey2 << segmentKey) % (j+1));
 		}
-
-		result += tmpResult;
+		cost_k += cost_i + cost_j + 1;
+		result += segmentKey ^ segmentKey2 ^ ((cost_i << cost_j) % (i+1)) ^ ((cost_k >> cost_i << cost_j) % (i+2));
 	}
 
-	return data;
+	return result;
 }
+
 
 std::string Teacrypt::generateSalt(std::string::size_type length)
 {
@@ -145,5 +156,5 @@ std::string Teacrypt::generateSalt(std::string::size_type length)
         s += chrs[pick(rg)];
     }
 
-    return "abcde";
+    return s;
 }

@@ -2,3 +2,6 @@
 *.swp
 *.swo
 *.tmp
+/.gdb_history
+/peda-session-bin.txt
+/peda-session-serres.so.txt
