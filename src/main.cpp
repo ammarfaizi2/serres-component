@@ -10,14 +10,12 @@ extern "C" {
 		
 		extension.add<teaEncrypt>("teaEncrypt", {
 			Php::ByVal("data", Php::Type::String),
-			Php::ByVal("key", Php::Type::String),
-			Php::ByVal("isBinarySafe", Php::Type::Bool, false)
+			Php::ByVal("key", Php::Type::String)
 		});
 
 		extension.add<teaDecrypt>("teaDecrypt", {
 			Php::ByVal("data", Php::Type::String),
-			Php::ByVal("key", Php::Type::String),
-			Php::ByVal("isBinarySafe", Php::Type::Bool, false)
+			Php::ByVal("key", Php::Type::String)			
 		});
 
 		return extension;

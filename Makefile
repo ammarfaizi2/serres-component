@@ -13,8 +13,8 @@ INI 				=	${NAME}.ini
 COMPILER			=	g++
 LINKER				=	g++
 
-COMPILER_FLAGS		=	-Wall -c -O2 -std=c++11 -fpic -o
-LINKER_FLAGS		=	-shared
+COMPILER_FLAGS		=	-g -Wall -c -O2 -std=c++11 -fpic -o
+LINKER_FLAGS		=	-g -shared
 LINKER_DEPENDENCIES	=	-lphpcpp
 
 RM					=	rm -f

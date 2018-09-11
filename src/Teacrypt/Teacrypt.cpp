@@ -5,57 +5,127 @@
 #include <iostream>
 #include "../headers/teacrypt_class.h"
 
+#define SALT_LENGTH 5
+
 std::string Teacrypt::encrypt(std::string data, std::string key) {
 	
 	std::string 
-		salt = generateSalt(5),
+		salt = generateSalt(SALT_LENGTH),
 		newKey = "",
 		result = "";
 	
-	char 
-		tmpKey1 = 'a',
-		tmpKey2 = 'a';
+	char tmpResult = 'a';
 
 	int 
-		saltLength = salt.length(),
+		saltLength = SALT_LENGTH,
 		dataLength = data.length(),
 		keyLength  = key.length(),
 		i = 0, j;
 	
 	for (; i < saltLength; ++i)
 	{
-		tmpKey1 = salt[i];
 		for (j = 0; j < keyLength; ++j)
 		{
 			newKey += (char)(
-				(int)tmpKey1 ^ (int)tmpKey2 ^ i ^ j
+				(int)salt[i] ^ (int)key[j] ^ i ^ j
 			);
 
 			newKey += (char)(
-				(int)tmpKey1 ^ i ^ j
+				(int)salt[i] ^ i ^ j
 			);
 
 			newKey += (char)(
-				(int)tmpKey2 ^ i ^ j
+				(int)key[j] ^ i ^ j
 			);
 
 			newKey += (char)(
-				(int)tmpKey1 ^ (int)tmpKey2 ^ i
+				(int)salt[i] ^ (int)key[j] ^ i
 			);
 
 			newKey += (char)(
-				(int)tmpKey1 ^ (int)tmpKey2 ^ j
+				(int)salt[i] ^ (int)key[j] ^ j
 			);
 		}
 	}
 
+	keyLength = newKey.length();
 
+	for (i = 0; i < dataLength; ++i)
+	{
+		for (j = 0; j < keyLength; ++j)
+		{
+			tmpResult = (char)(
+				(int)data[i] ^ (int)newKey[j] ^ i ^ j
+			);
+		}
 
-	return newKey;
+		result += tmpResult;
+	}
+
+	return result + salt;
 }
 
 std::string Teacrypt::decrypt(std::string data, std::string key) {
-	return "";
+
+	int dataLength = data.length();
+
+	std::string 
+		salt = data.substr(dataLength - SALT_LENGTH , SALT_LENGTH),
+		newKey = "",
+		result = "";
+
+	data = data.substr(0, dataLength - SALT_LENGTH);
+
+	char tmpResult = 'a';
+
+	int 
+		saltLength = SALT_LENGTH,
+		keyLength  = key.length(),
+		i = 0, j;
+	
+	dataLength = data.length();
+
+	for (; i < saltLength; ++i)
+	{
+		for (j = 0; j < keyLength; ++j)
+		{
+			newKey += (char)(
+				(int)salt[i] ^ (int)key[j] ^ i ^ j
+			);
+
+			newKey += (char)(
+				(int)salt[i] ^ i ^ j
+			);
+
+			newKey += (char)(
+				(int)key[j] ^ i ^ j
+			);
+
+			newKey += (char)(
+				(int)salt[i] ^ (int)key[j] ^ i
+			);
+
+			newKey += (char)(
+				(int)salt[i] ^ (int)key[j] ^ j
+			);
+		}
+	}
+
+	keyLength = newKey.length();
+
+	for (i = 0; i < dataLength; ++i)
+	{
+		for (j = 0; j < keyLength; ++j)
+		{
+			tmpResult = (char)(
+				(int)data[i] ^ (int)newKey[j] ^ i ^ j
+			);
+		}
+
+		result += tmpResult;
+	}
+
+	return data;
 }
 
 std::string Teacrypt::generateSalt(std::string::size_type length)
@@ -75,5 +145,5 @@ std::string Teacrypt::generateSalt(std::string::size_type length)
         s += chrs[pick(rg)];
     }
 
-    return s;
+    return "abcde";
 }
