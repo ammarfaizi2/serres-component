@@ -6,7 +6,7 @@
 #include <iostream>
 #include "../headers/teacrypt_class.h"
 
-#define SALT_LENGTH 5
+#define SALT_LENGTH 3
 
 std::string Teacrypt::encrypt(std::string data, std::string key) {
 	
@@ -137,7 +137,6 @@ std::string Teacrypt::decrypt(std::string data, std::string key) {
 
 	return result;
 }
-
 
 std::string Teacrypt::generateSalt(std::string::size_type length)
 {
