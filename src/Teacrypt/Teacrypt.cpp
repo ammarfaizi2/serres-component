@@ -1,5 +1,4 @@
 
-#include <assert.h>
 #include <phpcpp.h>
 #include <random>
 #include <string>
