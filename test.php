@@ -1,9 +1,9 @@
 <?php
 
 $time = microtime(true);
+$str = "qwertyuiopasdfghjklzzxcvbnmQWERTYUIOPSDFGHJKLZXCVBNM";
+$key = "ini kunci";
 for ($i=0; $i < 5000; $i++) { 
-	$str = "qwertyuiopasdfghjklzzxcvbnmQWERTYUIOPSDFGHJKLZXCVBNM";
-	$key = "ini kunci";
 	$a = teaEncrypt($str, $key);
 	$b = teaDecrypt($a, $key);
 	print $i."\n";
