@@ -23,30 +23,33 @@ std::string Teacrypt::encrypt(std::string data, std::string key) {
 		dataLength = data.length(),
 		keyLength  = key.length(),
 		i = 0, j, cost_i = 0, 
-		cost_j = 0, cost_k = 0;	
+		cost_j = 0, cost_k = 0,
+		sumakey = 0, sumasalt = 0;
+
 	for (; i < saltLength; ++i)
 	{
+		sumasalt += (int)salt[i];
 		for (j = 0; j < keyLength; ++j)
 		{
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ i ^ j
-			);
+			))[j+i+0];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ i ^ j
-			);
+			))[j+i+1];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)key[j] ^ i ^ j
-			);
+			))[j+i+2];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ i
-			);
+			))[j+i+3];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ j
-			);
+			))[j+i+4];
 		}
 	}
 
@@ -59,7 +62,10 @@ std::string Teacrypt::encrypt(std::string data, std::string key) {
 		{
 			cost_j += j;
 			segmentKey = (
-				(int)data[i] ^ (int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1))
+				(sumakey % (j+1)) ^ (sumakey % (i+1)) ^ (int)data[i] ^ 
+				(int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1) ^ 
+				((sumakey << sumakey << i) % 0xff)) ^ ((sumakey << sumakey << j) % 0xff) ^
+				((sumasalt << sumasalt << i) % 0xff) ^ ((sumasalt << sumasalt << j) % 0xff)
 			);
 			segmentKey2 = ((segmentKey2 << segmentKey) % (j+1));
 		}
@@ -87,38 +93,39 @@ std::string Teacrypt::decrypt(std::string data, std::string key) {
 		saltLength = SALT_LENGTH,
 		keyLength  = key.length(),
 		i = 0, j, cost_i = 0, 
-		cost_j = 0, cost_k = 0;
+		cost_j = 0, cost_k = 0,
+		sumakey = 0, sumasalt = 0;
 	
 	dataLength = data.length();
 
 	for (; i < saltLength; ++i)
 	{
+		sumasalt += (int)salt[i];
 		for (j = 0; j < keyLength; ++j)
 		{
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ i ^ j
-			);
+			))[j+i+0];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ i ^ j
-			);
+			))[j+i+1];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)key[j] ^ i ^ j
-			);
+			))[j+i+2];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ i
-			);
+			))[j+i+3];
 
-			newKey += (char)(
+			sumakey += (int)(newKey += (char)(
 				(int)salt[i] ^ (int)key[j] ^ j
-			);
+			))[j+i+4];
 		}
 	}
 
 	keyLength = newKey.length();
-
 	
 	for (i = 0; i < dataLength; ++i)
 	{
@@ -127,7 +134,10 @@ std::string Teacrypt::decrypt(std::string data, std::string key) {
 		{
 			cost_j += j;
 			segmentKey = (
-				(int)data[i] ^ (int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1))
+				(sumakey % (j+1)) ^ (sumakey % (i+1)) ^ (int)data[i] ^ 
+				(int)newKey[j] ^ i ^ j ^ (dataLength % (j+1)) ^ (keyLength % (i+1) ^ 
+				((sumakey << sumakey << i) % 0xff)) ^ ((sumakey << sumakey << j) % 0xff) ^
+				((sumasalt << sumasalt << i) % 0xff) ^ ((sumasalt << sumasalt << j) % 0xff)
 			);
 			segmentKey2 = ((segmentKey2 << segmentKey) % (j+1));
 		}
